@@ -8,7 +8,7 @@ import "ace-builds/src-noconflict/ext-language_tools";
 ace.config.set("basePath", "/node_modules/ace-builds/src-min-noconflict");
 
 import pdfMake from "pdfmake/build/pdfmake";
-import pdfFonts from "pdfmake/build/vfs_fonts";
+import pdfFonts from "./assets/PDFMake/vfs_fonts";
 
 export default function App() {
 	useEffect(() => {
@@ -29,21 +29,7 @@ export default function App() {
 	}
   	`;
 	const [docDefinition, setDocDefinition] = useState();
-
 	const [pdfURl, setPdfUrl] = useState();
-
-	const registerFonts = async () => {
-		const fontFile = "Prompt-Regular.ttf";
-		const response = await fetch(`/src/assets/fonts/${fontFile}`);
-		const blob = await response.blob();
-		const reader = new FileReader();
-		reader.readAsDataURL(blob);
-		pdfFonts.pdfMake.vfs[fontFile] = await new Promise((resolve) => {
-			reader.onloadend = () => {
-				resolve(reader.result.replace("data:font/ttf;base64,", ""));
-			};
-		});
-	};
 
 	const getCoding = async () => {
 		let content = await localStorage.getItem("PDFMake");
@@ -64,9 +50,8 @@ export default function App() {
 
 	const generatePdf = async (event) => {
 		try {
-			await registerFonts();
 			const content = new Function(event + "; return docDefinition;")();
-			pdfMake.vfs = pdfFonts.pdfMake.vfs;
+			pdfMake.vfs = pdfFonts;
 			pdfMake.fonts = {
 				Prompt: {
 					normal: "Prompt-Regular.ttf",
